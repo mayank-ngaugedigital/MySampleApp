@@ -16,7 +16,7 @@ node {
     println SFDC_HOST
     println CONNECTED_APP_CONSUMER_KEY
 
-    // Define correct path for toolbelt
+    // Correct path for Salesforce CLI
     def toolbelt = "C:/Program Files/sf/bin/sfdx.cmd"
 
     stage('Checkout Source') {
@@ -27,12 +27,12 @@ node {
         stage('Deploy Code') {
             def rc
             if (isUnix()) {
-                rc = sh returnStatus: true, script: "\"${toolbelt}\" force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile ${jwt_key_file} --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
+                rc = sh returnStatus: true, script: "\"${toolbelt}\" org login jwt --client-id ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwt-key-file ${jwt_key_file} --set-default-dev-hub --instance-url ${SFDC_HOST}"
             } else {
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" org login jwt --client-id ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwt-key-file \"${jwt_key_file}\" --set-default-dev-hub --instance-url ${SFDC_HOST}"
             }
 
-            // Properly close the if-else block and handle errors
+            // Handle authentication failure
             if (rc != 0) { 
                 error 'Hub org authorization failed' 
             }
@@ -41,9 +41,9 @@ node {
 
             def rmsg
             if (isUnix()) {
-                rmsg = sh returnStdout: true, script: "\"${toolbelt}\" force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
+                rmsg = sh returnStdout: true, script: "\"${toolbelt}\" project deploy start --manifest manifest/package.xml --target-org ${HUB_ORG}"
             } else {
-                rmsg = bat returnStdout: true, script: "\"${toolbelt}\" force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
+                rmsg = bat returnStdout: true, script: "\"${toolbelt}\" project deploy start --manifest manifest/package.xml --target-org ${HUB_ORG}"
             }
 
             println "Deployment Output:\n${rmsg}"
