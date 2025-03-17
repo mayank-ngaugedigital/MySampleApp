@@ -20,10 +20,6 @@ node {
     def toolbelt = "C:/Program Files/sf/bin/sfdx.cmd"
 
 
-    stage('Verify Salesforce CLI') {
-        sh 'sfdx --version'
-    }
-
     stage('Checkout Source') {
         checkout scm
     }
