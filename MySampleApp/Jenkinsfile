@@ -29,7 +29,7 @@ node {
         stage('Deploy Code') {
             def rc
             if (isUnix()) {
-                rc = bat returnStatus: true, script: "${toolbelt}/bin/sfdx force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile ${jwt_key_file} --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
+                rc = sh returnStatus: true, script: "${toolbelt}/bin/sfdx force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile ${jwt_key_file} --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
             } else {
                 rc = bat returnStatus: true, script: "\"${toolbelt}\\bin\\sfdx\" force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
             }
@@ -39,7 +39,7 @@ node {
 
             def rmsg
             if (isUnix()) {
-                rmsg = bat returnStdout: true, script: "${toolbelt}/bin/sfdx force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
+                rmsg = sh returnStdout: true, script: "${toolbelt}/bin/sfdx force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
             } else {
                 rmsg = bat returnStdout: true, script: "\"${toolbelt}\\bin\\sfdx\" force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
             }
