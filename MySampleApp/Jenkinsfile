@@ -5,6 +5,7 @@ node {
     def RUN_ARTIFACT_DIR = "tests/${BUILD_NUMBER}"
     def SFDC_USERNAME
 
+
     def HUB_ORG = env.HUB_ORG_DH
     def SFDC_HOST = env.SFDC_HOST_DH
     def JWT_KEY_CRED_ID = env.JWT_CRED_ID_DH
@@ -16,7 +17,7 @@ node {
     println SFDC_HOST
     println CONNECTED_APP_CONSUMER_KEY
 
-    def toolbelt = tool 'toolbelt'
+    def toolbelt = tool "C:\Program Files\sf\bin\sfdx.cmd"
 
     stage('Verify Salesforce CLI') {
         sh 'sfdx --version'
@@ -25,6 +26,7 @@ node {
     stage('Checkout Source') {
         checkout scm
     }
+
 
     withCredentials([file(credentialsId: JWT_KEY_CRED_ID, variable: 'jwt_key_file')]) {
         stage('Deploy Code') {
