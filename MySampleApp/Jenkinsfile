@@ -46,3 +46,14 @@ node {
         }
     }
 }
+
+pipeline {
+    agent any
+    stages {
+        stage('Verify Salesforce CLI') {
+            steps {
+                sh 'sfdx --version'
+            }
+        }
+    }
+}
