@@ -5,7 +5,6 @@ node {
     def RUN_ARTIFACT_DIR = "tests/${BUILD_NUMBER}"
     def SFDC_USERNAME
 
-
     def HUB_ORG = env.HUB_ORG_DH
     def SFDC_HOST = env.SFDC_HOST_DH
     def JWT_KEY_CRED_ID = env.JWT_CRED_ID_DH
@@ -17,31 +16,34 @@ node {
     println SFDC_HOST
     println CONNECTED_APP_CONSUMER_KEY
 
+    // Define correct path for toolbelt
     def toolbelt = "C:/Program Files/sf/bin/sfdx.cmd"
-
 
     stage('Checkout Source') {
         checkout scm
     }
 
-
     withCredentials([file(credentialsId: JWT_KEY_CRED_ID, variable: 'jwt_key_file')]) {
         stage('Deploy Code') {
             def rc
             if (isUnix()) {
-                rc = sh returnStatus: true, script: "${toolbelt} force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile ${jwt_key_file} --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
+                rc = sh returnStatus: true, script: "\"${toolbelt}\" force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile ${jwt_key_file} --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
             } else {
-                rc = bat returnStatus: true, script: "\"${toolbelt}" force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
             }
-            if (rc != 0) { error 'Hub org authorization failed' }
+
+            // Properly close the if-else block and handle errors
+            if (rc != 0) { 
+                error 'Hub org authorization failed' 
+            }
 
             println "Authorization successful, proceeding with deployment."
 
             def rmsg
             if (isUnix()) {
-                rmsg = sh returnStdout: true, script: "${toolbelt} force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
+                rmsg = sh returnStdout: true, script: "\"${toolbelt}\" force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
             } else {
-                rmsg = bat returnStdout: true, script: "\"${toolbelt}" force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
+                rmsg = bat returnStdout: true, script: "\"${toolbelt}\" force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
             }
 
             println "Deployment Output:\n${rmsg}"
